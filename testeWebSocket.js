@@ -23,8 +23,8 @@ ws.onopen = () => {
       // "evento" pode ser omitido
     },
     localizacao: {
-      latitude: -23.431982460171234,
-      longitude: -46.48072882511031
+      latitude: -23.545647734168224,
+      longitude: -46.47570980164753
     }
   };
   ws.send(JSON.stringify(sensorData));

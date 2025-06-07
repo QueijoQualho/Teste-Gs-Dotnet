@@ -25,7 +25,7 @@ app.get('/markers', async (req, res) => {
       ]
     };
 
-    await channel.bindQueue(replyQueue, 'MlNetService.App.Dtos.Messaging:GetMarkersResponse', '');
+    // await channel.bindQueue(replyQueue, 'MlNetService.App.Dtos.Messaging:GetMarkersResponse', '');
 
     const timeout = setTimeout(async () => {
       await channel.close();
