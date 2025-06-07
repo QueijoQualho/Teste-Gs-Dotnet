@@ -3,3 +3,7 @@ node_modules
 .git
 tmp
 *.tmp
+
+
+testeCreateMarkerInfo.js
+testeWebSocket.js

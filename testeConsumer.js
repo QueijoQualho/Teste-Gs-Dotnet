@@ -25,13 +25,13 @@ app.get('/markers', async (req, res) => {
       ]
     };
 
-    // await channel.bindQueue(replyQueue, 'MlNetService.App.Dtos.Messaging:GetMarkersResponse', '');
+    await channel.bindQueue(replyQueue, 'MlNetService.App.Dtos.Messaging:GetMarkersResponse', '');
 
     const timeout = setTimeout(async () => {
       await channel.close();
       await connection.close();
       res.status(504).json({ error: 'Timeout esperando resposta do serviço RabbitMQ' });
-    }, 10000); // 10 segundos
+    }, 20000); // 10 segundos
 
     await channel.consume(replyQueue, async (msg) => {
       if (msg) {
@@ -61,6 +61,95 @@ app.get('/markers', async (req, res) => {
   } catch (err) {
     console.error('Erro ao enviar/receber do RabbitMQ:', err);
     res.status(500).json({ error: 'Erro ao enviar ou receber dados do RabbitMQ' });
+  }
+});
+
+
+app.use(express.json());
+
+
+app.post('/send-marker', async (req, res) => {
+  const queue = 'create-marker-info';
+
+  const { latitude, longitude, desasterType, markerType, description } = req.body;
+
+  const message = {
+    MarkerInfo: {
+      latitude,
+      longitude,
+      desasterType,
+      markerType,
+      description
+    },
+    messageType: [
+      "urn:message:MlNetService.App.Dtos.Messaging:CreateMarkersRequest"
+    ]
+  };
+
+  try {
+    const connection = await amqp.connect('amqp://rabbitmq-aci-watchtower.brazilsouth.azurecontainer.io');
+    const channel = await connection.createChannel();
+
+    await channel.assertQueue(queue, { durable: true });
+
+    channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)), {
+      contentType: 'application/json',
+      persistent: true,
+      headers: {
+        messageType: message.messageType
+      }
+    });
+
+    await channel.close();
+    await connection.close();
+
+    return res.status(200).json({ message: 'Mensagem enviada com sucesso.' });
+  } catch (err) {
+    console.error('Erro ao enviar mensagem:', err);
+    return res.status(500).json({ error: 'Erro ao enviar mensagem' });
+  }
+});
+
+app.delete('/delete-marker', async (req, res) => {
+  const queue = 'create-marker-info';
+
+  const { latitude, longitude, desasterType, markerType, description } = req.body;
+
+  const message = {
+    MarkerInfo: {
+      latitude,
+      longitude,
+      desasterType,
+      markerType,
+      description
+    },
+    messageType: [
+      "urn:message:MlNetService.App.Dtos.Messaging:CreateMarkersRequest"
+    ]
+  };
+
+
+  try {
+    const connection = await amqp.connect('amqp://rabbitmq-aci-watchtower.brazilsouth.azurecontainer.io');
+    const channel = await connection.createChannel();
+
+    await channel.assertQueue(queue, { durable: true });
+
+    channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)), {
+      contentType: 'application/json',
+      persistent: true,
+      headers: {
+        messageType: message.messageType
+      }
+    });
+
+    await channel.close();
+    await connection.close();
+
+    return res.status(200).json({ message: 'Mensagem enviada com sucesso.' });
+  } catch (err) {
+    console.error('Erro ao enviar mensagem:', err);
+    return res.status(500).json({ error: 'Erro ao enviar mensagem' });
   }
 });
 

@@ -1,14 +1,10 @@
 const WebSocket = require('ws');
 
-/// Salve como test-ws.js e rode com: node test-ws.js
-
 const ws = new WebSocket('ws://localhost:9090/ws/');
 
 ws.onopen = () => {
   console.log('Conectado ao WebSocket!');
 
-  // Exemplo de dados (ajuste os campos conforme seu SensorData)
-  // ...existing code...
   // Exemplo de dados (ajuste os campos conforme seu SensorData)
   const sensorData = {
     sensor: {
